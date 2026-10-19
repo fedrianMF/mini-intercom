@@ -10,15 +10,17 @@ Cada archivo es una tarea para un agente (Codex CLI u otro). Se hacen en el orde
 | 4 | [04 · Kit de certificación y página "Qué demuestra"](04-certification-kit.md) | Python | Certificación de entidades y página pública | |
 | 5 | [05 · Despliegue en Dokploy](05-dokploy.md) | Compose | Demo en `intercom.fedrian.dev` | |
 | 6 | [06 · Reportes de estado](06-reportes.md) | Node, SQL | Reporte por país y estado en CSV y Grafana | |
-| 7 | [07 · Firma digital XML](07-firma-xml.md) | Node + Python | El hub rechaza XML alterados | |
+| 7 | [07 · Firma digital XML](07-firma-xml.md) | Node + Python | El hub rechaza XML alterados | Opcional |
 | 8 | [08 · Documentación](08-documentacion.md) | | README, ADR y runbook al día | |
-| 9 | [09 · Calendario de vencimientos](09-vencimientos.md) | Python | Aviso de certificados y secretos por vencer (opcional) | |
+| 9 | [09 · Calendario de vencimientos](09-vencimientos.md) | Python | Aviso de certificados y secretos por vencer | Opcional |
 
-Fuera del código, para Felix: grabar un **video de 2 minutos** con la página, la traza de un documento y Grafana, cuando la tarea 5 esté publicada.
+Fuera del código, para Felix (opcional): grabar un **video de 2 minutos** con la página, la traza de un documento y Grafana, cuando la tarea 5 esté publicada.
 
 ## Prioridad
 
-El expediente de la postulación se envía el **24/10**, aunque la demo no esté terminada: el CV lleva el enlace al repositorio. Las tareas siguen después, y lo ideal es que la 7 esté lista antes de la entrevista técnica del 2/11.
+Esta semana el foco es el **expediente** (CV, certificados, inglés), que se envía el **24/10**. La demo no lo retrasa: el CV lleva el enlace a `portfolio.fedrian.dev`, que después del envío se reacondiciona para llevar a todos los proyectos.
+
+Después del envío y antes de la entrevista técnica del 2/11: tareas 2 a 5, luego la 6 y la 8. Las opcionales (7, 9 y el video) entran solo si sobra tiempo.
 
 ## Por qué tres lenguajes
 
