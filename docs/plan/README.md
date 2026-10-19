@@ -9,7 +9,7 @@ Cada archivo es una tarea para un agente (Codex CLI u otro). Se hacen en el orde
 | 3 | [03 · Integración](03-integracion.md) | C#, Compose, CI | Ecuador de punta a punta y job de .NET en CI | |
 | 4 | [04 · Kit de certificación y página "Qué demuestra"](04-certification-kit.md) | Python | Certificación de entidades y página pública | |
 | 5 | [05 · Despliegue en Dokploy](05-dokploy.md) | Compose | Demo en `intercom.fedrian.dev` | |
-| 6 | [06 · Reportes de estado](06-reportes.md) | Node, SQL | Reporte por país y estado en CSV y Grafana | |
+| 6 | [06 · Reportes de estado](06-reportes.md) | Node, SQL | Reporte por país y estado en CSV y Grafana | Opcional |
 | 7 | [07 · Firma digital XML](07-firma-xml.md) | Node + Python | El hub rechaza XML alterados | Opcional |
 | 8 | [08 · Documentación](08-documentacion.md) | | README, ADR y runbook al día | |
 | 9 | [09 · Calendario de vencimientos](09-vencimientos.md) | Python | Aviso de certificados y secretos por vencer | Opcional |
@@ -20,7 +20,7 @@ Fuera del código, para Felix (opcional): grabar un **video de 2 minutos** con l
 
 Esta semana el foco es el **expediente** (CV, certificados, inglés), que se envía el **24/10**. La demo no lo retrasa: el CV lleva el enlace a `portfolio.fedrian.dev`, que después del envío se reacondiciona para llevar a todos los proyectos.
 
-Después del envío y antes de la entrevista técnica del 2/11: tareas 2 a 5, luego la 6 y la 8. Las opcionales (7, 9 y el video) entran solo si sobra tiempo.
+La demo empieza el **25/10**: tareas 2 a 5 y luego la 8. El formato de la prueba técnica no está definido, así que la preparación de la entrevista va antes que las opcionales (6, 7, 9 y el video), que entran solo si sobra tiempo.
 
 ## Por qué tres lenguajes
 
