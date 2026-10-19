@@ -110,7 +110,8 @@ jobs:
       - name: Scan image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ghcr.io/${{ github.repository_owner }}/mini-intercom-${{ matrix.name }}:sha-${{ github.sha }}
+          # metadata-action lowercases the owner, as registry references require.
+          image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: "1"
