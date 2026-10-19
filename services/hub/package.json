@@ -23,7 +23,7 @@
     "fastify": "5.12.7",
     "jose": "6.1.0",
     "pg": "8.16.3",
-    "xmllint-wasm": "5.0.0"
+    "xmllint-wasm": "5.3.0"
   },
   "devDependencies": {
     "@types/amqplib": "0.10.7",
