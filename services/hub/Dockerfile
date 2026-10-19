@@ -1,5 +1,5 @@
 # Build context: repository root (the image bundles the shared schemas).
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY services/hub/package.json services/hub/package-lock.json ./
 RUN npm ci --no-audit --no-fund
@@ -7,7 +7,7 @@ COPY services/hub/tsconfig.json services/hub/tsconfig.build.json ./
 COPY services/hub/src ./src
 RUN npm run build && cp -r src/db/migrations dist/db/migrations && npm prune --omit=dev
 
-FROM node:22-alpine
+FROM node:26-alpine
 # The runtime only needs node: drop the bundled package managers and their dependencies.
 RUN rm -rf /usr/local/lib/node_modules /opt/yarn-* /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg
 ENV NODE_ENV=production SCHEMAS_DIR=/app/schemas
