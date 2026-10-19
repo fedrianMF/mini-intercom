@@ -1,6 +1,19 @@
+# One grouped pull request per ecosystem and month, minor and patch only.
+# Major upgrades (Node 26, TypeScript 7, amqplib 2, vitest 5...) are planned by hand, with their own tests.
 version: 2
 updates:
-  - { package-ecosystem: npm, directory: /services/hub, schedule: { interval: weekly } }
-  - { package-ecosystem: npm, directory: /services/entity-adapter, schedule: { interval: weekly } }
-  - { package-ecosystem: docker, directory: /services/hub, schedule: { interval: weekly } }
-  - { package-ecosystem: github-actions, directory: /, schedule: { interval: weekly } }
+  - package-ecosystem: npm
+    directories: [/services/hub, /services/entity-adapter]
+    schedule: { interval: monthly }
+    groups: { npm: { patterns: ["*"], update-types: [minor, patch] } }
+    ignore: [{ dependency-name: "*", update-types: ["version-update:semver-major"] }]
+  - package-ecosystem: docker
+    directories: [/services/hub, /services/entity-adapter]
+    schedule: { interval: monthly }
+    groups: { docker: { patterns: ["*"], update-types: [minor, patch] } }
+    ignore: [{ dependency-name: "*", update-types: ["version-update:semver-major"] }]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+    groups: { actions: { patterns: ["*"], update-types: [minor, patch] } }
+    ignore: [{ dependency-name: "*", update-types: ["version-update:semver-major"] }]
