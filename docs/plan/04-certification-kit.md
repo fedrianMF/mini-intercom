@@ -40,6 +40,23 @@ intercom-cert run --gateway URL --client-id ID --client-secret SECRET --destinat
   - el botón "Ejecutar certificación";
   - el resultado de cada caso, con la traza del documento (estado, actor, hora);
   - un enlace a Grafana (`GRAFANA_URL`) y al repositorio.
+- Sección **"Qué demuestra"**, al inicio de la página y escrita para alguien no técnico:
+  - una tabla "Función del puesto → dónde verlo", con enlaces a la parte de la página, a Grafana, a la carpeta del repo o al documento de `docs/` que lo muestra. Filas mínimas:
+    - interoperabilidad entre entidades;
+    - validación de esquemas JSON y XSD;
+    - identidad y acceso (Keycloak);
+    - mensajería con reintentos;
+    - sistemas heredados (SOAP + SQL Server, .NET);
+    - certificación de entidades nuevas;
+    - firma digital XML;
+    - monitoreo (Grafana);
+    - CI/CD y DevSecOps;
+    - GitOps (Argo CD/Helm);
+    - respaldo y restauración;
+    - supervisión de proveedores (`docs/supervision/`);
+    - documentación y runbook.
+  - El contenido de la tabla va en `intercom_cert/static/evidence.json`, para editarlo sin tocar el HTML.
+- La traza de cada documento se dibuja como **línea de tiempo** horizontal (RECEIVED → ROUTED → ACCEPTED/REJECTED/FAILED), con hora y actor en cada paso, solo con HTML y CSS.
 - `POST /api/runs {destination}`: corre los 5 casos con la entidad de demostración configurada en el servidor (`DEMO_CLIENT_ID` y `DEMO_CLIENT_SECRET`, que nunca se envían al navegador) y devuelve los resultados en JSON.
   - Límite: una corrida a la vez (`asyncio.Lock`) y una cada 30 s por IP. Usa el primer valor de `X-Forwarded-For` y, si no viene, `request.client.host`.
   - Si se pasa el límite, devuelve 429 con `Retry-After`.

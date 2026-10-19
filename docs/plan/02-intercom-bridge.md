@@ -61,5 +61,9 @@ Paquetes (ya instalados, sin cambiar versión): `RabbitMQ.Client` 7.2.2 (API as�
 ## Verificación
 
 ```sh
-docker run --rm -v "$PWD":/src -w /src/services/soap-bridge mcr.microsoft.com/dotnet/sdk:10.0 dotnet test
+docker run --rm -v "$PWD":/src -v nuget:/root/.nuget -w /src/services/soap-bridge mcr.microsoft.com/dotnet/sdk:10.0 sh -c "dotnet restore && dotnet test"
 ```
+
+## Corrección pendiente de la tarea 01 (del informe de revisión)
+
+En `CertificateRegistrar`, si `SaveChangesAsync` falla por la clave única de `CertificateNumber` (dos mensajes iguales a la vez), captura `DbUpdateException`, descarta los cambios del contexto (`db.ChangeTracker.Clear()`), vuelve a leer el registro y devuelve su respuesta. Agrega una prueba que inserte el registro antes del segundo `SaveChanges` y verifique que devuelve el existente sin lanzar.

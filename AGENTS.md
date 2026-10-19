@@ -14,7 +14,7 @@ Plataforma de referencia para intercambiar documentos electrónicos de comercio 
 
 ## Al terminar cada tarea
 
-1. Corre la verificación que indica la tarea y confirma que pasa.
+1. Corre la verificación que indica la tarea y confirma que pasa. Si tu ambiente no deja correrla, arréglalo (por ejemplo, `dotnet restore` antes de `dotnet test`, con un volumen para `~/.nuget`). No entregues sin haberla visto pasar.
 2. Resume en español: qué cambiaste, archivos tocados, cómo probarlo y cualquier decisión no obvia.
 
 ## Estructura
@@ -27,7 +27,7 @@ Plataforma de referencia para intercambiar documentos electrónicos de comercio 
 | `tools/certification-kit` | Python 3.12. Kit de certificación de entidades y página pública de prueba. |
 | `schemas/` | JSON Schema, XSD y muestras del certificado de origen. |
 | `deploy/` | APISIX, Keycloak, observabilidad, Helm, Argo CD y despliegue en Dokploy. |
-| `docs/` | Arquitectura, runbook, seguridad, ADR y el plan de tareas. |
+| `docs/` | Arquitectura, runbook, seguridad, ADR, el plan de tareas (`plan/`) y los informes de revisión de cada entrega (`supervision/`). |
 
 ## Contrato del hub (lo que usan los adaptadores)
 
@@ -39,4 +39,4 @@ Plataforma de referencia para intercambiar documentos electrónicos de comercio 
 ## Entorno
 
 - Docker Compose levanta todo: `docker compose up -d --build` y luego `./scripts/demo.sh`.
-- .NET sin SDK local: `docker run --rm -v "$PWD":/src -w /src/services/soap-bridge mcr.microsoft.com/dotnet/sdk:10.0 dotnet test`.
+- .NET sin SDK local: `docker run --rm -v "$PWD":/src -v nuget:/root/.nuget -w /src/services/soap-bridge mcr.microsoft.com/dotnet/sdk:10.0 sh -c "dotnet restore && dotnet test"`.

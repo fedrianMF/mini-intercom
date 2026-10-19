@@ -64,7 +64,7 @@ La interfaz del servicio **no** va aquí: el servidor usa los atributos de CoreW
 ## Verificación
 
 ```sh
-docker run --rm -v "$PWD":/src -w /src/services/soap-bridge mcr.microsoft.com/dotnet/sdk:10.0 dotnet test
+docker run --rm -v "$PWD":/src -v nuget:/root/.nuget -w /src/services/soap-bridge mcr.microsoft.com/dotnet/sdk:10.0 sh -c "dotnet restore && dotnet test"
 ```
 
 Todas las pruebas en verde y sin advertencias de nulabilidad nuevas.
