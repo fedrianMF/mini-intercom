@@ -27,3 +27,12 @@ securityContext:
 - name: AMQP_URL
   valueFrom: { secretKeyRef: { name: {{ .Values.hub.existingSecret }}, key: AMQP_URL } }
 {{- end -}}
+
+{{- define "mi.podSecurityContext" -}}
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile: { type: RuntimeDefault }
+{{- end -}}

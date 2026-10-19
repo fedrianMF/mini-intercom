@@ -18,6 +18,7 @@ spec:
         app.kubernetes.io/component: adapter
     spec:
       automountServiceAccountToken: false
+      {{- include "mi.podSecurityContext" $ | nindent 6 }}
       containers:
         - name: adapter
           image: {{ include "mi.image" (dict "root" $ "image" $.Values.adapters.image) }}

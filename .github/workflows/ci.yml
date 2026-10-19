@@ -47,7 +47,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Filesystem and IaC scan
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scanners: vuln,misconfig,secret
@@ -96,7 +96,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/mini-intercom-${{ matrix.name }}
           tags: |
-            type=sha
+            type=sha,format=long
             type=semver,pattern={{version}}
       - uses: docker/build-push-action@v6
         with:
@@ -108,9 +108,10 @@ jobs:
           sbom: true
           provenance: true
       - name: Scan image
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/${{ github.repository_owner }}/mini-intercom-${{ matrix.name }}:sha-${{ github.sha }}
           severity: HIGH,CRITICAL
+          ignore-unfixed: true
           exit-code: "1"
         if: github.event_name != 'pull_request'

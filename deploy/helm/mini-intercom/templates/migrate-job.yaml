@@ -14,6 +14,7 @@ spec:
     spec:
       restartPolicy: Never
       automountServiceAccountToken: false
+      {{- include "mi.podSecurityContext" . | nindent 6 }}
       containers:
         - name: migrate
           image: {{ include "mi.image" (dict "root" . "image" .Values.hub.image) }}

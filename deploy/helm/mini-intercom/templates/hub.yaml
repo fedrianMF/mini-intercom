@@ -23,6 +23,7 @@ spec:
         prometheus.io/port: "3000"
     spec:
       automountServiceAccountToken: false
+      {{- include "mi.podSecurityContext" . | nindent 6 }}
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
