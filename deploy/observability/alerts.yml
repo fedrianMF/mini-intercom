@@ -1,0 +1,41 @@
+groups:
+  - name: intercom
+    rules:
+      - alert: OutboxBacklog
+        expr: intercom_outbox_pending > 100 or (intercom_outbox_pending > 0 and increase(intercom_outbox_publish_failures_total[5m]) > 10)
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: Documents are not reaching the broker
+          runbook: docs/runbook.md#el-outbox-crece
+
+      - alert: DocumentsFailing
+        expr: increase(intercom_document_transitions_total{status="FAILED"}[15m]) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: "Delivery to {{ $labels.destination }} is failing after retries"
+          runbook: docs/runbook.md#documentos-en-failed
+
+      - alert: InboxNotDraining
+        expr: rabbitmq_detailed_queue_messages_ready{queue=~"entity\\..*\\.inbox"} > 50
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.queue }} is accumulating messages; the entity adapter may be down"
+          runbook: docs/runbook.md#una-cola-de-país-no-baja
+
+      - alert: HubHighErrorRate
+        expr: |
+          sum(rate(intercom_http_request_duration_seconds_count{status_code=~"5.."}[5m]))
+            / sum(rate(intercom_http_request_duration_seconds_count[5m])) > 0.05
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: More than 5% of hub requests are failing
+
+      - alert: HubDown
+        expr: up{job="hub"} == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: The hub is not answering scrapes

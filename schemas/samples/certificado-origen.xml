@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CertificadoOrigen xmlns="urn:mini-intercom:certificado-origen:v1">
+  <Numero>BO-2026-000124</Numero>
+  <FechaEmision>2026-10-18</FechaEmision>
+  <NormaOrigen>Decision 416</NormaOrigen>
+  <Exportador>
+    <Nombre>Quinua Andina S.R.L.</Nombre>
+    <Identificacion>1020304050</Identificacion>
+    <Direccion>Av. Arce 1234, La Paz</Direccion>
+    <Pais>BO</Pais>
+  </Exportador>
+  <Importador>
+    <Nombre>Importadora Andina S.A.S.</Nombre>
+    <Identificacion>900123456</Identificacion>
+    <Pais>CO</Pais>
+  </Importador>
+  <Factura>
+    <Numero>F-000988</Numero>
+    <Fecha>2026-10-17</Fecha>
+  </Factura>
+  <Mercancias>
+    <Mercancia>
+      <Item>1</Item>
+      <SubpartidaNandina>10085090</SubpartidaNandina>
+      <Descripcion>Quinua real organica en grano</Descripcion>
+      <Cantidad>15000</Cantidad>
+      <Unidad>KG</Unidad>
+      <ValorFob>39000</ValorFob>
+      <CriterioOrigen>a</CriterioOrigen>
+    </Mercancia>
+  </Mercancias>
+</CertificadoOrigen>

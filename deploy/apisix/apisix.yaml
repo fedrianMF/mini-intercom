@@ -1,0 +1,46 @@
+upstreams:
+  - id: hub
+    type: roundrobin
+    nodes:
+      "hub:3000": 1
+    checks:
+      active:
+        http_path: /health/ready
+        healthy: { interval: 5, successes: 1 }
+        unhealthy: { interval: 5, http_failures: 2 }
+  - id: keycloak
+    type: roundrobin
+    nodes:
+      "keycloak:8080": 1
+
+routes:
+  # Public document exchange API. Health and metrics endpoints are deliberately not routed.
+  - id: documents
+    uris: ["/v1/*"]
+    upstream_id: hub
+    plugins:
+      request-id:
+        header_name: X-Correlation-Id
+        include_in_response: true
+      limit-count:
+        count: 120
+        time_window: 60
+        key_type: var
+        key: remote_addr
+        rejected_code: 429
+      prometheus: {}
+
+  # Token endpoint for entities (client credentials).
+  - id: token
+    uri: /realms/intercom/protocol/openid-connect/token
+    methods: [POST]
+    upstream_id: keycloak
+    plugins:
+      limit-count:
+        count: 30
+        time_window: 60
+        key_type: var
+        key: remote_addr
+        rejected_code: 429
+      prometheus: {}
+#END

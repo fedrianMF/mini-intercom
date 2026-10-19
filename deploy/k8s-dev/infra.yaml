@@ -1,0 +1,97 @@
+# Throwaway dependencies for a local k3s cluster. In production these come from
+# operators (CloudNativePG, RabbitMQ Cluster Operator, Keycloak Operator) with
+# their own Argo CD applications, backups and high availability.
+apiVersion: v1
+kind: Secret
+metadata: { name: mini-intercom-hub }
+stringData:
+  DATABASE_URL: postgres://intercom:intercom-dev@postgres:5432/intercom
+  AMQP_URL: amqp://intercom:intercom-dev@rabbitmq:5672
+---
+apiVersion: v1
+kind: Secret
+metadata: { name: mini-intercom-adapters }
+stringData:
+  senavex-bo: dev-only-senavex-bo-secret
+  vuce-co: dev-only-vuce-co-secret
+  ecuapass-ec: dev-only-ecuapass-ec-secret
+  vuce-pe: dev-only-vuce-pe-secret
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: { name: postgres }
+spec:
+  serviceName: postgres
+  selector: { matchLabels: { app: postgres } }
+  template:
+    metadata: { labels: { app: postgres } }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17-alpine
+          env:
+            - { name: POSTGRES_DB, value: intercom }
+            - { name: POSTGRES_USER, value: intercom }
+            - { name: POSTGRES_PASSWORD, value: intercom-dev }
+          ports: [{ containerPort: 5432 }]
+          readinessProbe: { exec: { command: [pg_isready, -U, intercom] }, periodSeconds: 5 }
+          volumeMounts: [{ name: data, mountPath: /var/lib/postgresql/data }]
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec: { accessModes: [ReadWriteOnce], resources: { requests: { storage: 1Gi } } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: postgres }
+spec: { selector: { app: postgres }, ports: [{ port: 5432 }] }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: rabbitmq }
+spec:
+  selector: { matchLabels: { app: rabbitmq } }
+  template:
+    metadata: { labels: { app: rabbitmq } }
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:4.1-management-alpine
+          env:
+            - { name: RABBITMQ_DEFAULT_USER, value: intercom }
+            - { name: RABBITMQ_DEFAULT_PASS, value: intercom-dev }
+          ports: [{ containerPort: 5672 }, { containerPort: 15692 }]
+          readinessProbe: { exec: { command: [rabbitmq-diagnostics, -q, check_port_connectivity] }, periodSeconds: 10, timeoutSeconds: 10 }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: rabbitmq }
+spec: { selector: { app: rabbitmq }, ports: [{ name: amqp, port: 5672 }, { name: metrics, port: 15692 }] }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: keycloak }
+spec:
+  selector: { matchLabels: { app: keycloak } }
+  template:
+    metadata: { labels: { app: keycloak } }
+    spec:
+      containers:
+        - name: keycloak
+          image: keycloak/keycloak:26.3
+          args: [start-dev, --import-realm]
+          env:
+            - { name: KC_BOOTSTRAP_ADMIN_USERNAME, value: admin }
+            - { name: KC_BOOTSTRAP_ADMIN_PASSWORD, value: admin-dev }
+            - { name: KC_HOSTNAME, value: "http://keycloak:8080" }
+            - { name: KC_HEALTH_ENABLED, value: "true" }
+          ports: [{ containerPort: 8080 }]
+          readinessProbe: { httpGet: { path: /health/ready, port: 9000 }, periodSeconds: 10 }
+          volumeMounts: [{ name: realm, mountPath: /opt/keycloak/data/import }]
+      volumes:
+        - name: realm
+          configMap: { name: keycloak-realm }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: keycloak }
+spec: { selector: { app: keycloak }, ports: [{ port: 8080 }] }

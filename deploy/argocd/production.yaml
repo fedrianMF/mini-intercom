@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mini-intercom-production
+  namespace: argocd
+spec:
+  project: intercom
+  source:
+    repoURL: https://github.com/fedrianMF/mini-intercom.git
+    # Production only moves when a release tag is created, so every deployment
+    # is traceable to a reviewed commit and rolls back by pointing to the previous tag.
+    targetRevision: v0.1.0
+    path: deploy/helm/mini-intercom
+    helm:
+      valueFiles: [values.yaml, values-production.yaml]
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: intercom
+  syncPolicy:
+    syncOptions: [CreateNamespace=true]
+    retry:
+      limit: 3
+      backoff: { duration: 30s, factor: 2, maxDuration: 5m }

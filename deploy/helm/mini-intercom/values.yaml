@@ -1,0 +1,55 @@
+image:
+  registry: ghcr.io/fedrianmf
+  pullPolicy: IfNotPresent
+
+hub:
+  image: { repository: mini-intercom-hub, tag: "0.1.0" }
+  replicas: 2
+  # Secret with DATABASE_URL and AMQP_URL. Created by External Secrets from the vault, never committed.
+  existingSecret: mini-intercom-hub
+  oidc:
+    issuer: https://auth.example.org/realms/intercom
+    jwksUrl: http://keycloak.identity.svc:8080/realms/intercom/protocol/openid-connect/certs
+    audience: intercom-hub
+  logLevel: info
+  resources:
+    requests: { cpu: 100m, memory: 128Mi }
+    limits: { memory: 256Mi }
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+# One adapter per member-country entity. clientSecretKey is read from adapters.existingSecret.
+adapters:
+  existingSecret: mini-intercom-adapters
+  image: { repository: mini-intercom-entity-adapter, tag: "0.1.0" }
+  tokenUrl: http://keycloak.identity.svc:8080/realms/intercom/protocol/openid-connect/token
+  maxAttempts: 5
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { memory: 128Mi }
+  entities:
+    - { country: BO, clientId: senavex-bo }
+    - { country: CO, clientId: vuce-co }
+    - { country: EC, clientId: ecuapass-ec }
+    - { country: PE, clientId: vuce-pe }
+
+ingress:
+  enabled: true
+  className: ""
+  host: intercom.example.org
+  tlsSecret: intercom-tls
+
+networkPolicy:
+  enabled: true
+
+serviceMonitor:
+  enabled: false
+
+externalSecrets:
+  enabled: false
+  secretStore: vault-intercom
+  hubPath: intercom/hub
+  adaptersPath: intercom/adapters

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Simplified certificate of origin used by mini-INTERCOM. Not an official CAN schema. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="urn:mini-intercom:certificado-origen:v1"
+           targetNamespace="urn:mini-intercom:certificado-origen:v1"
+           elementFormDefault="qualified">
+
+  <xs:simpleType name="Pais">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BO"/>
+      <xs:enumeration value="CO"/>
+      <xs:enumeration value="EC"/>
+      <xs:enumeration value="PE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NumeroCertificado">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z]{2}-[0-9]{4}-[0-9]{6}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SubpartidaNandina">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{8}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CriterioOrigen">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="a"/>
+      <xs:enumeration value="b"/>
+      <xs:enumeration value="c"/>
+      <xs:enumeration value="d"/>
+      <xs:enumeration value="e"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="Operador">
+    <xs:sequence>
+      <xs:element name="Nombre" type="xs:string"/>
+      <xs:element name="Identificacion" type="xs:string"/>
+      <xs:element name="Direccion" type="xs:string" minOccurs="0"/>
+      <xs:element name="Pais" type="Pais"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Mercancia">
+    <xs:sequence>
+      <xs:element name="Item" type="xs:positiveInteger"/>
+      <xs:element name="SubpartidaNandina" type="SubpartidaNandina"/>
+      <xs:element name="Descripcion" type="xs:string"/>
+      <xs:element name="Cantidad" type="xs:decimal"/>
+      <xs:element name="Unidad" type="xs:string"/>
+      <xs:element name="ValorFob" type="xs:decimal"/>
+      <xs:element name="CriterioOrigen" type="CriterioOrigen"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="CertificadoOrigen">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Numero" type="NumeroCertificado"/>
+        <xs:element name="FechaEmision" type="xs:date"/>
+        <xs:element name="NormaOrigen" type="xs:string" fixed="Decision 416"/>
+        <xs:element name="Exportador" type="Operador"/>
+        <xs:element name="Importador" type="Operador"/>
+        <xs:element name="Factura">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Numero" type="xs:string"/>
+              <xs:element name="Fecha" type="xs:date"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Mercancias">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Mercancia" type="Mercancia" maxOccurs="200"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Observaciones" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

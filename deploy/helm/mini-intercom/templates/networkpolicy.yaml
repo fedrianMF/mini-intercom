@@ -1,0 +1,24 @@
+{{- if .Values.networkPolicy.enabled }}
+# Default deny for the release; the hub only accepts traffic on its HTTP port.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "mi.name" . }}-default-deny
+  labels: {{- include "mi.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: { app.kubernetes.io/part-of: mini-intercom }
+  policyTypes: [Ingress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "mi.name" . }}-hub-http
+  labels: {{- include "mi.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: { app.kubernetes.io/name: {{ include "mi.name" . }}-hub }
+  policyTypes: [Ingress]
+  ingress:
+    - ports: [{ port: 3000, protocol: TCP }]
+{{- end }}

@@ -1,0 +1,23 @@
+{{- if .Values.ingress.enabled }}
+# Only the document API is published; health and metrics stay inside the cluster.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "mi.name" . }}
+  labels: {{- include "mi.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  tls:
+    - hosts: [{{ .Values.ingress.host | quote }}]
+      secretName: {{ .Values.ingress.tlsSecret }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /v1
+            pathType: Prefix
+            backend:
+              service: { name: {{ include "mi.name" . }}-hub, port: { name: http } }
+{{- end }}

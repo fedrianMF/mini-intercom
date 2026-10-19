@@ -1,0 +1,119 @@
+# Local environment: the whole platform on one machine.
+# docker compose up -d --build   then   ./scripts/demo.sh
+name: mini-intercom
+
+x-adapter: &adapter
+  build: services/entity-adapter
+  restart: unless-stopped
+  depends_on:
+    hub: { condition: service_healthy }
+  environment: &adapter-env
+    AMQP_URL: amqp://intercom:intercom-dev@rabbitmq:5672
+    HUB_URL: http://hub:3000
+    TOKEN_URL: http://keycloak:8080/realms/intercom/protocol/openid-connect/token
+    MAX_ATTEMPTS: "3"
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: intercom
+      POSTGRES_USER: intercom
+      POSTGRES_PASSWORD: intercom-dev
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U intercom -d intercom"]
+      interval: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:4.1-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: intercom
+      RABBITMQ_DEFAULT_PASS: intercom-dev
+    ports: ["15672:15672"]
+    volumes: [rabbitdata:/var/lib/rabbitmq]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+      interval: 10s
+      retries: 12
+
+  keycloak:
+    image: keycloak/keycloak:26.3
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin-dev
+      # Fixed public URL so tokens carry the same issuer whichever network they are requested from.
+      KC_HOSTNAME: http://localhost:8080
+      KC_HEALTH_ENABLED: "true"
+    ports: ["8080:8080"]
+    volumes: [./deploy/keycloak:/opt/keycloak/data/import:ro]
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]
+      interval: 10s
+      retries: 30
+
+  hub:
+    build: { context: ., dockerfile: services/hub/Dockerfile }
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+      keycloak: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgres://intercom:intercom-dev@postgres:5432/intercom
+      AMQP_URL: amqp://intercom:intercom-dev@rabbitmq:5672
+      OIDC_ISSUER: http://localhost:8080/realms/intercom
+      OIDC_JWKS_URL: http://keycloak:8080/realms/intercom/protocol/openid-connect/certs
+      OIDC_AUDIENCE: intercom-hub
+      RUN_MIGRATIONS: "true"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health/ready"]
+      interval: 5s
+      retries: 20
+
+  adapter-bo:
+    <<: *adapter
+    environment: { <<: *adapter-env, COUNTRY: BO, CLIENT_ID: senavex-bo, CLIENT_SECRET: dev-only-senavex-bo-secret }
+  adapter-pe:
+    <<: *adapter
+    environment: { <<: *adapter-env, COUNTRY: PE, CLIENT_ID: vuce-pe, CLIENT_SECRET: dev-only-vuce-pe-secret }
+  adapter-co:
+    <<: *adapter
+    # Colombia's national system is flaky on purpose, to show retries and dead-lettering.
+    environment: { <<: *adapter-env, COUNTRY: CO, CLIENT_ID: vuce-co, CLIENT_SECRET: dev-only-vuce-co-secret, FAIL_RATE: "0.5" }
+  adapter-ec:
+    <<: *adapter
+    environment: { <<: *adapter-env, COUNTRY: EC, CLIENT_ID: ecuapass-ec, CLIENT_SECRET: dev-only-ecuapass-ec-secret }
+
+  apisix:
+    image: apache/apisix:3.13.0-debian
+    environment:
+      APISIX_STAND_ALONE: "true"
+    volumes:
+      - ./deploy/apisix/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+      - ./deploy/apisix/apisix.yaml:/usr/local/apisix/conf/apisix.yaml:ro
+    ports: ["9080:9080"]
+    depends_on:
+      hub: { condition: service_healthy }
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    volumes:
+      - ./deploy/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./deploy/observability/alerts.yml:/etc/prometheus/alerts.yml:ro
+    ports: ["9090:9090"]
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin-dev
+    volumes:
+      - ./deploy/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./deploy/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports: ["3001:3000"]
+
+volumes:
+  pgdata:
+  rabbitdata:

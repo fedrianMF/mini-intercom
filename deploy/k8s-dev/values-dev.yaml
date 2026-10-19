@@ -1,0 +1,13 @@
+# Local k3s: images imported into the cluster, dependencies from infra.yaml.
+image:
+  pullPolicy: Never
+hub:
+  oidc:
+    issuer: http://keycloak:8080/realms/intercom
+    jwksUrl: http://keycloak:8080/realms/intercom/protocol/openid-connect/certs
+  autoscaling: { enabled: false }
+  replicas: 2
+adapters:
+  tokenUrl: http://keycloak:8080/realms/intercom/protocol/openid-connect/token
+ingress:
+  enabled: false

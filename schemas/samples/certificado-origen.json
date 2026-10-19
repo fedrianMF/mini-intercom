@@ -1,0 +1,35 @@
+{
+  "documentType": "certificado-origen",
+  "schemaVersion": "1",
+  "destinationCountry": "PE",
+  "format": "json",
+  "payload": {
+    "numero": "BO-2026-000123",
+    "fechaEmision": "2026-10-18",
+    "normaOrigen": "Decision 416",
+    "exportador": {
+      "nombre": "Quinua Andina S.R.L.",
+      "identificacion": "1020304050",
+      "direccion": "Av. Arce 1234, La Paz",
+      "pais": "BO"
+    },
+    "importador": {
+      "nombre": "Distribuidora del Pacifico S.A.C.",
+      "identificacion": "20123456789",
+      "pais": "PE"
+    },
+    "factura": { "numero": "F-000987", "fecha": "2026-10-17" },
+    "medioTransporte": "terrestre",
+    "mercancias": [
+      {
+        "item": 1,
+        "subpartidaNandina": "10085090",
+        "descripcion": "Quinua real organica en grano",
+        "cantidad": 20000,
+        "unidad": "KG",
+        "valorFob": 52000,
+        "criterioOrigen": "a"
+      }
+    ]
+  }
+}

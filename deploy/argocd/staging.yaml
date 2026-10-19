@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mini-intercom-staging
+  namespace: argocd
+spec:
+  project: intercom
+  source:
+    repoURL: https://github.com/fedrianMF/mini-intercom.git
+    targetRevision: main
+    path: deploy/helm/mini-intercom
+    helm:
+      valueFiles: [values.yaml, values-staging.yaml]
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: intercom-staging
+  syncPolicy:
+    # Staging follows main automatically; drift is corrected.
+    automated: { prune: true, selfHeal: true }
+    syncOptions: [CreateNamespace=true]

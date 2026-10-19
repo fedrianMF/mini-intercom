@@ -1,0 +1,22 @@
+# Runs schema migrations before every install or upgrade. Argo CD maps Helm hooks to PreSync.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "mi.name" . }}-migrate-{{ .Release.Revision }}
+  labels: {{- include "mi.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 300
+  template:
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      containers:
+        - name: migrate
+          image: {{ include "mi.image" (dict "root" . "image" .Values.hub.image) }}
+          command: ["node", "dist/db/migrate.js"]
+          env: {{- include "mi.hubEnv" . | nindent 12 }}
+          {{- include "mi.securityContext" . | nindent 10 }}

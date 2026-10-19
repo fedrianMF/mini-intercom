@@ -1,0 +1,1 @@
+# Development-only credentials used by compose.yaml and deploy/k8s-dev; never valid outside a local machine.

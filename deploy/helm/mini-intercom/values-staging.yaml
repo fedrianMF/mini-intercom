@@ -1,0 +1,6 @@
+hub:
+  autoscaling: { enabled: false }
+  replicas: 1
+  logLevel: debug
+ingress:
+  host: api.staging.intercom.example.org

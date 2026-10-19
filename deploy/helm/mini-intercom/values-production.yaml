@@ -1,0 +1,14 @@
+hub:
+  image: { tag: "0.1.0" }
+  oidc:
+    issuer: https://auth.intercom.example.org/realms/intercom
+  autoscaling: { minReplicas: 3, maxReplicas: 8 }
+adapters:
+  image: { tag: "0.1.0" }
+ingress:
+  className: apisix
+  host: api.intercom.example.org
+serviceMonitor:
+  enabled: true
+externalSecrets:
+  enabled: true

@@ -1,0 +1,25 @@
+{
+  "name": "@mini-intercom/entity-adapter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Simulated national entity: consumes its country's inbox, delivers to the local system and acknowledges to the hub",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "amqplib": "0.10.9"
+  },
+  "devDependencies": {
+    "@types/amqplib": "0.10.7",
+    "@types/node": "22.18.8",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  }
+}

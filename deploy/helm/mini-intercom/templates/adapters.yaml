@@ -1,0 +1,38 @@
+{{- range .Values.adapters.entities }}
+{{- $name := printf "%s-adapter-%s" (include "mi.name" $) (lower .country) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels: {{- include "mi.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: adapter
+    intercom.dev/country: {{ .country }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app.kubernetes.io/name: {{ $name }} }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $name }}
+        app.kubernetes.io/component: adapter
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: adapter
+          image: {{ include "mi.image" (dict "root" $ "image" $.Values.adapters.image) }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          env:
+            - { name: COUNTRY, value: {{ .country | quote }} }
+            - { name: CLIENT_ID, value: {{ .clientId | quote }} }
+            - name: CLIENT_SECRET
+              valueFrom: { secretKeyRef: { name: {{ $.Values.adapters.existingSecret }}, key: {{ .clientId }} } }
+            - name: AMQP_URL
+              valueFrom: { secretKeyRef: { name: {{ $.Values.hub.existingSecret }}, key: AMQP_URL } }
+            - { name: HUB_URL, value: "http://{{ include "mi.name" $ }}-hub" }
+            - { name: TOKEN_URL, value: {{ $.Values.adapters.tokenUrl | quote }} }
+            - { name: MAX_ATTEMPTS, value: {{ $.Values.adapters.maxAttempts | quote }} }
+          resources: {{- toYaml $.Values.adapters.resources | nindent 12 }}
+          {{- include "mi.securityContext" $ | nindent 10 }}
+---
+{{- end }}

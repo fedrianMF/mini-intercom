@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: intercom
+    folder: INTERCOM
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

@@ -1,0 +1,23 @@
+# Limits what the platform's Argo CD applications may deploy and where.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: intercom
+  namespace: argocd
+spec:
+  description: Plataforma de interoperabilidad
+  sourceRepos:
+    - https://github.com/fedrianMF/mini-intercom.git
+  destinations:
+    - { server: https://kubernetes.default.svc, namespace: intercom-staging }
+    - { server: https://kubernetes.default.svc, namespace: intercom }
+  clusterResourceWhitelist: []
+  namespaceResourceBlacklist:
+    - { group: "", kind: ResourceQuota }
+  syncWindows:
+    # Production changes only on weekday business hours (Lima), so someone is around to watch them.
+    - kind: allow
+      schedule: "0 9 * * 1-5"
+      duration: 8h
+      timeZone: America/Lima
+      applications: [mini-intercom-production]
