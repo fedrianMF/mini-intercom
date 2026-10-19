@@ -2,6 +2,7 @@ using CoreWCF;
 using CoreWCF.Configuration;
 using CoreWCF.Description;
 using Microsoft.EntityFrameworkCore;
+using LegacyCustoms;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,8 @@ builder.Services.AddScoped<CertificateRegistrar>(services =>
         services.GetRequiredService<CustomsDbContext>(),
         services.GetRequiredService<TimeProvider>(),
         builder.Configuration.GetValue<double>("Customs:FailRate", 0)));
-builder.Services.AddScoped<ICustomsRegistry, CustomsRegistryService>();
+// CoreWCF resolves the service by its concrete type.
+builder.Services.AddScoped<CustomsRegistryService>();
 
 var app = builder.Build();
 

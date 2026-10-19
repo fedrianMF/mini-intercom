@@ -1,0 +1,11 @@
+<Project>
+  <!-- CoreWCF and System.ServiceModel pull System.Security.Cryptography.* versions with known vulnerabilities.
+       Pin the patched versions until those packages ship them. -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'CustomsContracts'">
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+  </ItemGroup>
+  <!-- ASP.NET Core already ships the patched Xml package; only the WCF client projects need it. -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'IntercomBridge' Or '$(MSBuildProjectName)' == 'SoapBridge.Tests'">
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.13" />
+  </ItemGroup>
+</Project>
