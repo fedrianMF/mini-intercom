@@ -55,6 +55,7 @@ Detalle en [docs/arquitectura.md](docs/arquitectura.md) y decisiones en [docs/ad
 | Gateway | Apache APISIX (modo declarativo): ID de correlación, límite de peticiones, métricas |
 | Mensajería | RabbitMQ: colas quorum por país, reintentos con TTL, cola de mensajes muertos |
 | Datos | PostgreSQL 17, migraciones versionadas, outbox transaccional |
+| Sistema heredado (SOAP) | C# / .NET 10: servicio SOAP 1.1 con WSDL (CoreWCF) que simula una aduana nacional, Entity Framework Core con SQL Server, pruebas con xUnit. El puente hacia el hub está en desarrollo |
 | Observabilidad | Métricas Prometheus, alertas, tablero Grafana, logs JSON con ID de correlación |
 | Plataforma | Docker, Helm, Kubernetes / k3s, Argo CD (GitOps), External Secrets |
 | CI/CD y seguridad | GitHub Actions y GitLab CI, Trivy, Gitleaks, npm audit, SonarQube, SBOM, Dependabot |
