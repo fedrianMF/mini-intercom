@@ -48,6 +48,22 @@ public sealed class HubClientTests
             () => client.SendAckAsync("document-1", new AckDecision("accepted"), "correlation-1"));
     }
 
+    [Fact]
+    public async Task Unauthorized_is_transient_and_drops_cached_token()
+    {
+        var ackCalls = 0;
+        var handler = new StubHttpMessageHandler(request => request.RequestUri!.AbsolutePath.EndsWith("/token")
+            ? JsonResponse(HttpStatusCode.OK, """{"access_token":"test-token","expires_in":60}""")
+            : new HttpResponseMessage(++ackCalls == 1 ? HttpStatusCode.Unauthorized : HttpStatusCode.NoContent));
+        var client = CreateClient(handler);
+
+        await Assert.ThrowsAsync<TransientException>(
+            () => client.SendAckAsync("document-1", new AckDecision("accepted"), "correlation-1"));
+        await client.SendAckAsync("document-1", new AckDecision("accepted"), "correlation-1");
+
+        Assert.Equal(2, handler.Requests.Count(request => request.RequestUri!.AbsolutePath.EndsWith("/token")));
+    }
+
     private static StubHttpMessageHandler HandlerReturning(HttpStatusCode ackStatus) =>
         new(request => request.RequestUri!.AbsolutePath.EndsWith("/token")
             ? JsonResponse(HttpStatusCode.OK, """{"access_token":"test-token","expires_in":60}""")

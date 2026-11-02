@@ -5,7 +5,7 @@ Cada archivo es una tarea para un agente (Codex CLI u otro). Se hacen en el orde
 | Orden | Tarea | Lenguaje | Resultado visible | Estado |
 |---|---|---|---|---|
 | 1 | [01 · Sistema aduanero simulado](01-legacy-customs.md) | C# | Servicio SOAP con WSDL y SQL Server | Hecha y revisada |
-| 2 | [02 · Puente INTERCOM ↔ SOAP](02-intercom-bridge.md) | C# | Ecuador recibe documentos a través de SOAP | |
+| 2 | [02 · Puente INTERCOM ↔ SOAP](02-intercom-bridge.md) | C# | Ecuador recibe documentos a través de SOAP | Hecha y revisada |
 | 3 | [03 · Integración](03-integracion.md) | C#, SQL, Compose, CI | Ecuador de punta a punta, procedimiento almacenado en SQL Server y job de .NET en CI | |
 | 3b | [10 · Contrato OpenAPI y colección de Postman](10-openapi-postman.md) | OpenAPI, Postman | API documentada y probada con newman | |
 | 4 | [04 · Kit de certificación y página "Qué demuestra"](04-certification-kit.md) | Python, Vue | Certificación de entidades y página pública en Vue 3 | |

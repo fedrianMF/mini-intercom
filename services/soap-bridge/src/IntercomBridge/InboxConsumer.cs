@@ -82,6 +82,7 @@ public sealed class InboxConsumer(
         var attempt = HeaderAsInt(headers, "x-attempt", 1);
         var correlationId = HeaderAsString(headers, "x-correlation-id");
         InboundDocument? document = null;
+        var settled = false;
 
         try
         {
@@ -101,12 +102,14 @@ public sealed class InboxConsumer(
                 var response = await customsGateway.RegisterAsync(request);
                 var decision = AckDecision.From(response);
                 await hubClient.SendAckAsync(document.DocumentId, decision, correlationId, cancellationToken);
+                settled = true;
                 logger.LogInformation("Document processed with result {result}", decision.Result);
             }
             catch (UnmappableDocumentException exception)
             {
                 var decision = AckDecision.Rejected($"unreadable document: {exception.FieldName}");
                 await hubClient.SendAckAsync(document.DocumentId, decision, correlationId, cancellationToken);
+                settled = true;
                 logger.LogInformation("Document processed with result {result}", decision.Result);
             }
         }
@@ -115,7 +118,17 @@ public sealed class InboxConsumer(
             var action = exception is TransientException
                 ? RetryPolicy.OnTransientFailure(attempt, options.MaxAttempts)
                 : new RetryAction(false, attempt);
-            await PublishFailureAsync(channel, message, headers, action, exception.Message, cancellationToken);
+            try
+            {
+                await PublishFailureAsync(channel, message, headers, action, exception.Message, cancellationToken);
+                settled = true;
+            }
+            catch (Exception publishException)
+            {
+                // Without a confirmed retry or dead-letter copy, acking would lose the document: leave it for redelivery.
+                logger.LogError(publishException, "Could not republish document {documentId}; leaving it unacknowledged", document?.DocumentId);
+                return;
+            }
 
             using var scope = logger.BeginScope(new Dictionary<string, object?>
             {
@@ -128,9 +141,15 @@ public sealed class InboxConsumer(
                 exception,
                 action.ShouldRetry ? "Document processing failed; retry scheduled" : "Document processing failed; sent to dead letters");
         }
-        finally
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            await channel.BasicAckAsync(message.DeliveryTag, multiple: false, cancellationToken);
+            // Shutting down mid-delivery: the broker redelivers the unacknowledged message.
+            return;
+        }
+
+        if (settled)
+        {
+            await channel.BasicAckAsync(message.DeliveryTag, multiple: false, CancellationToken.None);
         }
     }
 

@@ -49,7 +49,13 @@ public sealed class HubClient(HttpClient httpClient, IOptions<BridgeOptions> opt
                 return;
             }
 
-            if (response.StatusCode == HttpStatusCode.Unauthorized || (int)response.StatusCode >= 500)
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                cachedToken = null;
+                throw new TransientException("hub rejected the access token");
+            }
+
+            if ((int)response.StatusCode >= 500)
             {
                 throw new TransientException($"hub returned {(int)response.StatusCode}");
             }
