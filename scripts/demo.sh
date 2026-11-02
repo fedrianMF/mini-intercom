@@ -36,7 +36,7 @@ wait_final() {
 
 main() {
   local token run json_id xml_id xml_body bad_body
-  token="$(get_token senavex-bo)"
+  token="$(get_token entidad-bo)"
   run="$(date +%s)"
 
   echo "== 1. Certificado en JSON, Bolivia -> Peru"

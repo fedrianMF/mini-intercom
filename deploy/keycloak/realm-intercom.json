@@ -17,13 +17,13 @@
   },
   "clients": [
     {
-      "clientId": "senavex-bo",
-      "name": "SENAVEX (BO)",
+      "clientId": "entidad-bo",
+      "name": "Entidad emisora (BO)",
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "dev-only-senavex-bo-secret",
+      "secret": "dev-only-entidad-bo-secret",
       "serviceAccountsEnabled": true,
       "standardFlowEnabled": false,
       "directAccessGrantsEnabled": false,
@@ -54,7 +54,7 @@
           "consentRequired": false,
           "config": {
             "claim.name": "entity",
-            "claim.value": "SENAVEX",
+            "claim.value": "ENTIDAD-BO",
             "jsonType.label": "String",
             "access.token.claim": "true",
             "id.token.claim": "false",
@@ -259,9 +259,9 @@
   ],
   "users": [
     {
-      "username": "service-account-senavex-bo",
+      "username": "service-account-entidad-bo",
       "enabled": true,
-      "serviceAccountClientId": "senavex-bo",
+      "serviceAccountClientId": "entidad-bo",
       "realmRoles": [
         "documents:send",
         "documents:receive"

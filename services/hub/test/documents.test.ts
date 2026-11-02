@@ -20,14 +20,14 @@ describe('POST /v1/documents', () => {
     const res = await ctx.app.inject({ method: 'POST', url: '/v1/documents', payload: await envelope() });
     expect(res.statusCode).toBe(401);
 
-    const wrongAudience = await ctx.token({ country: 'BO', entity: 'SENAVEX' }, { audience: 'other' });
+    const wrongAudience = await ctx.token({ country: 'BO', entity: 'ENTIDAD-BO' }, { audience: 'other' });
     const res2 = await ctx.app.inject({ method: 'POST', url: '/v1/documents', headers: { authorization: `Bearer ${wrongAudience}` }, payload: await envelope() });
     expect(res2.statusCode).toBe(401);
   });
 
   it('requires the send role', async () => {
     const ctx = await setup();
-    const token = await ctx.token({ country: 'BO', entity: 'SENAVEX', realm_access: { roles: [] } });
+    const token = await ctx.token({ country: 'BO', entity: 'ENTIDAD-BO', realm_access: { roles: [] } });
     const res = await ctx.app.inject({ method: 'POST', url: '/v1/documents', headers: { authorization: `Bearer ${token}` }, payload: await envelope() });
     expect(res.statusCode).toBe(403);
   });
@@ -37,7 +37,7 @@ describe('POST /v1/documents', () => {
     const res = await send(ctx);
     expect(res.statusCode).toBe(202);
     const body = res.json();
-    expect(body).toMatchObject({ status: 'RECEIVED', originCountry: 'BO', originEntity: 'SENAVEX', destinationCountry: 'PE' });
+    expect(body).toMatchObject({ status: 'RECEIVED', originCountry: 'BO', originEntity: 'ENTIDAD-BO', destinationCountry: 'PE' });
     expect(res.headers.location).toBe(`/v1/documents/${body.id}`);
     expect(body.payload).toBeUndefined();
   });

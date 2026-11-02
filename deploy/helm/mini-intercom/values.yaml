@@ -31,7 +31,7 @@ adapters:
     requests: { cpu: 50m, memory: 64Mi }
     limits: { memory: 128Mi }
   entities:
-    - { country: BO, clientId: senavex-bo }
+    - { country: BO, clientId: entidad-bo }
     - { country: CO, clientId: vuce-co }
     - { country: EC, clientId: ecuapass-ec }
     - { country: PE, clientId: vuce-pe }

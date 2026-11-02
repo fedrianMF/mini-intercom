@@ -116,7 +116,7 @@ export async function setup() {
     publisher,
     metrics,
     token,
-    bolivia: () => token({ azp: 'senavex-bo', country: 'BO', entity: 'SENAVEX' }),
+    bolivia: () => token({ azp: 'entidad-bo', country: 'BO', entity: 'ENTIDAD-BO' }),
     peru: () => token({ azp: 'vuce-pe', country: 'PE', entity: 'VUCE-PE' }),
     colombia: () => token({ azp: 'vuce-co', country: 'CO', entity: 'VUCE-CO' }),
   };

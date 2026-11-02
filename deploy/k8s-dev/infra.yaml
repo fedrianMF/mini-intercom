@@ -12,7 +12,7 @@ apiVersion: v1
 kind: Secret
 metadata: { name: mini-intercom-adapters }
 stringData:
-  senavex-bo: dev-only-senavex-bo-secret
+  entidad-bo: dev-only-entidad-bo-secret
   vuce-co: dev-only-vuce-co-secret
   ecuapass-ec: dev-only-ecuapass-ec-secret
   vuce-pe: dev-only-vuce-pe-secret

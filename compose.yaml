@@ -75,7 +75,7 @@ services:
 
   adapter-bo:
     <<: *adapter
-    environment: { <<: *adapter-env, COUNTRY: BO, CLIENT_ID: senavex-bo, CLIENT_SECRET: dev-only-senavex-bo-secret }
+    environment: { <<: *adapter-env, COUNTRY: BO, CLIENT_ID: entidad-bo, CLIENT_SECRET: dev-only-entidad-bo-secret }
   adapter-pe:
     <<: *adapter
     environment: { <<: *adapter-env, COUNTRY: PE, CLIENT_ID: vuce-pe, CLIENT_SECRET: dev-only-vuce-pe-secret }

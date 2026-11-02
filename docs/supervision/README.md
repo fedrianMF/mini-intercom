@@ -28,3 +28,4 @@ Es el mismo proceso que se aplicaría a un proveedor que desarrolla un módulo d
 | Tarea | Resultado | Informe |
 |---|---|---|
 | 01 · Sistema aduanero simulado | No conforme → corregido en la revisión | [01-legacy-customs.md](01-legacy-customs.md) |
+| 02 · Puente INTERCOM ↔ SOAP | Conforme con observaciones (2 correcciones en la revisión) | [02-intercom-bridge.md](02-intercom-bridge.md) |
