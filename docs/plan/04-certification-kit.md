@@ -83,8 +83,8 @@ intercom-cert run --gateway URL --client-id ID --client-secret SECRET --destinat
 - `tools/certification-kit/Dockerfile`, multi-etapa: primero `node:22-alpine` con `npm ci && npm run build` en `web/`; después `python:3.12-slim`, copia `intercom_cert/static/` de la primera etapa, `pip install --no-cache-dir .`, usuario no root y `CMD ["intercom-cert", "serve", "--host", "0.0.0.0", "--port", "8000"]`.
 - Servicio `certification-kit` en `compose.yaml`:
   - `GATEWAY_URL=http://apisix:9080`;
-  - `DEMO_CLIENT_ID=senavex-bo`;
-  - `DEMO_CLIENT_SECRET=dev-only-senavex-bo-secret`;
+  - `DEMO_CLIENT_ID=entidad-bo`;
+  - `DEMO_CLIENT_SECRET=dev-only-entidad-bo-secret`;
   - `CUSTOMS_URL=http://legacy-customs-ec:8080`;
   - `GRAFANA_URL=http://localhost:3001`;
   - puerto `8000:8000`.
@@ -113,6 +113,6 @@ intercom-cert run --gateway URL --client-id ID --client-secret SECRET --destinat
 (cd tools/certification-kit/web && npm ci && npm test && npm run build)
 pip install -e "tools/certification-kit[dev]" && ruff check tools/certification-kit && pytest tools/certification-kit
 docker compose up -d --build
-intercom-cert run --gateway http://localhost:9080 --client-id senavex-bo --client-secret dev-only-senavex-bo-secret --destination PE --markdown /tmp/informe.md
+intercom-cert run --gateway http://localhost:9080 --client-id entidad-bo --client-secret dev-only-entidad-bo-secret --destination PE --markdown /tmp/informe.md
 # y abrir http://localhost:8000
 ```

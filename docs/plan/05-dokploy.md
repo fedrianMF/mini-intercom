@@ -17,14 +17,14 @@ Distinto del `compose.yaml` local:
 - Ningún `ports:`: solo Traefik expone. `apisix` y `grafana` se unen a la red externa `dokploy-network`; todo lo demás va solo en la red interna `intercom`.
 - Secretos por variable de entorno con `${VAR:?}`, nunca escritos en el archivo:
   - `POSTGRES_PASSWORD`, `RABBITMQ_PASSWORD`, `KEYCLOAK_ADMIN_PASSWORD`, `MSSQL_SA_PASSWORD`, `GRAFANA_ADMIN_PASSWORD`;
-  - `SENAVEX_BO_SECRET`, `VUCE_PE_SECRET`, `VUCE_CO_SECRET`, `ECUAPASS_EC_SECRET`.
+  - `ENTIDAD_BO_SECRET`, `VUCE_PE_SECRET`, `VUCE_CO_SECRET`, `ECUAPASS_EC_SECRET`.
 - Keycloak en modo producción:
   - `start --import-realm` y base PostgreSQL propia (base `keycloak`, creada con un script en `deploy/dokploy/postgres-init/`);
   - `KC_HOSTNAME: https://intercom.fedrian.dev`, `KC_PROXY_HEADERS: xforwarded`, `KC_HTTP_ENABLED: "true"`, `KC_HEALTH_ENABLED: "true"`.
-- `deploy/dokploy/realm-intercom.json`: copia del realm local en la que cada `secret` es un placeholder de variable de entorno (`${SENAVEX_BO_SECRET}`, etc.). Keycloak los reemplaza al importar; verifica que la versión 26.3 lo haga, y si no, usa un entrypoint que haga `envsubst`.
+- `deploy/dokploy/realm-intercom.json`: copia del realm local en la que cada `secret` es un placeholder de variable de entorno (`${ENTIDAD_BO_SECRET}`, etc.). Keycloak los reemplaza al importar; verifica que la versión 26.3 lo haga, y si no, usa un entrypoint que haga `envsubst`.
 - El hub con `OIDC_ISSUER: https://intercom.fedrian.dev/realms/intercom` y JWKS por la red interna.
 - Grafana con `GF_SERVER_ROOT_URL: https://grafana.intercom.fedrian.dev`, `GF_AUTH_ANONYMOUS_ENABLED: "true"` y `GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer`.
-- `certification-kit` con `DEMO_CLIENT_ID: senavex-bo`, su secreto desde la variable, `GRAFANA_URL` público y `REPO_URL: https://github.com/fedrianMF/mini-intercom`.
+- `certification-kit` con `DEMO_CLIENT_ID: entidad-bo`, su secreto desde la variable, `GRAFANA_URL` público y `REPO_URL: https://github.com/fedrianMF/mini-intercom`.
 - Límites de memoria (`deploy.resources.limits.memory`) en cada servicio. En total, menos de 5 GB:
   - sqlserver 1,5 GB, keycloak 768 MB;
   - rabbitmq, postgres, grafana y prometheus 256 a 512 MB;
