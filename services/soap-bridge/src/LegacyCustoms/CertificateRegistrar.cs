@@ -46,7 +46,24 @@ public sealed class CertificateRegistrar(CustomsDbContext db, TimeProvider timeP
         };
 
         db.Registrations.Add(registration);
-        await db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            db.ChangeTracker.Clear();
+            existing = await db.Registrations
+                .AsNoTracking()
+                .SingleOrDefaultAsync(
+                    candidate => candidate.CertificateNumber == request.CertificateNumber,
+                    cancellationToken);
+            if (existing is null)
+            {
+                throw;
+            }
+            return ToResponse(existing);
+        }
         if (registration.Status == RegistrationStatus.Accepted)
         {
             registration.RegistrationNumber = $"EC-REG-{request.IssueDate.Year}-{registration.Id:D6}";

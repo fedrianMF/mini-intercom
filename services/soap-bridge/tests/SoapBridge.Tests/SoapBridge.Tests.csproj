@@ -26,4 +26,8 @@
     <ProjectReference Include="..\..\src\IntercomBridge\IntercomBridge.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\..\..\schemas\samples\*" LinkBase="samples" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

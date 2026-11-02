@@ -17,7 +17,7 @@ Una entidad (por ejemplo, la que emite certificados de origen en Bolivia) envía
 Cada cambio de estado queda en una traza consultable por las dos partes:
 
 ```
-RECEIVED (senavex-bo) -> ROUTED (hub) -> ACCEPTED (vuce-pe)
+RECEIVED (entidad-bo) -> ROUTED (hub) -> ACCEPTED (vuce-pe)
 ```
 
 ## Arquitectura

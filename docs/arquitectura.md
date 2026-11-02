@@ -70,7 +70,7 @@ sequenceDiagram
   participant MQ as RabbitMQ
   participant PE as Adaptador PE
   BO->>KC: client_credentials
-  KC-->>BO: JWT (country=BO, entity=SENAVEX)
+  KC-->>BO: JWT (country=BO, entity=ENTIDAD-BO)
   BO->>HUB: POST /v1/documents + Idempotency-Key
   HUB->>HUB: verifica JWT, valida sobre y esquema
   HUB->>DB: documento + evento RECEIVED + outbox (1 transacción)
