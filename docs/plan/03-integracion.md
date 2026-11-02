@@ -29,9 +29,19 @@ Ecuador pasa a usar la pila .NET. Los otros países siguen con el adaptador Node
   - depende de `hub` sano y de `legacy-customs-ec` iniciado.
 - Agrega `mssqldata` a `volumes`.
 
+## Procedimiento almacenado (SQL Server)
+
+El TDR pide procedimientos almacenados y optimización en SQL Server. El sistema heredado los usa para su reporte diario, como es típico en una aduana.
+
+- `services/soap-bridge/src/LegacyCustoms/Sql/001_index_received_status.sql`: índice `IX_Registrations_ReceivedAt_Status` sobre `Registrations (ReceivedAt, Status)`, creado solo si no existe (`IF NOT EXISTS (SELECT 1 FROM sys.indexes ...)`).
+- `services/soap-bridge/src/LegacyCustoms/Sql/002_usp_RegistrationSummary.sql`: `CREATE OR ALTER PROCEDURE dbo.usp_RegistrationSummary @From date, @To date`. Devuelve una fila por día y estado: `Day` (`date`), `Status`, `Total` (`int`), con el rango inclusivo en `@From` y exclusivo en `@To + 1 día`, para que use el índice. `SET NOCOUNT ON` al inicio.
+- Los dos archivos van como `EmbeddedResource` y se ejecutan en orden al arrancar, después de `EnsureCreatedAsync()`, solo si `db.Database.IsSqlServer()` (en las pruebas con SQLite se omiten). Cada archivo es un solo lote: sin `GO`.
+- Endpoint `GET /registrations/summary?from=YYYY-MM-DD&to=YYYY-MM-DD` (por defecto, los últimos 7 días): `db.Database.SqlQuery<RegistrationSummaryRow>($"EXEC dbo.usp_RegistrationSummary @From = {from}, @To = {to}").ToListAsync()`. Con un proveedor que no sea SQL Server responde 501. Rango mayor a 92 días: 400.
+- Prueba unitaria (SQLite): el endpoint responde 501 y el rango inválido responde 400. La prueba real contra SQL Server es el paso 5 de la demo.
+
 ## Demo (`scripts/demo.sh`)
 
-Nuevo paso 5: "Certificado JSON, Bolivia → Ecuador, a través del puente SOAP". Envía la muestra JSON con `destinationCountry: "EC"` e `importador.pais = "EC"`, espera el estado final y luego muestra `curl -s localhost:8085/registrations?limit=1 | jq`. Debe verse `ACCEPTED` en el hub y el `registrationNumber` en el sistema aduanero.
+Nuevo paso 5: "Certificado JSON, Bolivia → Ecuador, a través del puente SOAP". Envía la muestra JSON con `destinationCountry: "EC"` e `importador.pais = "EC"`, espera el estado final y luego muestra `curl -s localhost:8085/registrations?limit=1 | jq`. Debe verse `ACCEPTED` en el hub y el `registrationNumber` en el sistema aduanero. Al final, `curl -s localhost:8085/registrations/summary | jq` muestra el resumen que devuelve el procedimiento almacenado.
 
 ## CI (`.github/workflows/ci.yml`)
 
@@ -60,7 +70,7 @@ Nuevo paso 5: "Certificado JSON, Bolivia → Ecuador, a través del puente SOAP"
 ## Verificación
 
 ```sh
-docker compose up -d --build && ./scripts/demo.sh      # el paso 5 termina en ACCEPTED con registrationNumber
+docker compose up -d --build && ./scripts/demo.sh      # el paso 5 termina en ACCEPTED con registrationNumber y el resumen del procedimiento
 helm lint deploy/helm/mini-intercom -f deploy/helm/mini-intercom/values-production.yaml
 ```
 

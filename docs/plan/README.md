@@ -6,8 +6,9 @@ Cada archivo es una tarea para un agente (Codex CLI u otro). Se hacen en el orde
 |---|---|---|---|---|
 | 1 | [01 · Sistema aduanero simulado](01-legacy-customs.md) | C# | Servicio SOAP con WSDL y SQL Server | Hecha y revisada |
 | 2 | [02 · Puente INTERCOM ↔ SOAP](02-intercom-bridge.md) | C# | Ecuador recibe documentos a través de SOAP | |
-| 3 | [03 · Integración](03-integracion.md) | C#, Compose, CI | Ecuador de punta a punta y job de .NET en CI | |
-| 4 | [04 · Kit de certificación y página "Qué demuestra"](04-certification-kit.md) | Python | Certificación de entidades y página pública | |
+| 3 | [03 · Integración](03-integracion.md) | C#, SQL, Compose, CI | Ecuador de punta a punta, procedimiento almacenado en SQL Server y job de .NET en CI | |
+| 3b | [10 · Contrato OpenAPI y colección de Postman](10-openapi-postman.md) | OpenAPI, Postman | API documentada y probada con newman | |
+| 4 | [04 · Kit de certificación y página "Qué demuestra"](04-certification-kit.md) | Python, Vue | Certificación de entidades y página pública en Vue 3 | |
 | 5 | [05 · Despliegue en Dokploy](05-dokploy.md) | Compose | Demo en `intercom.fedrian.dev` | |
 | 6 | [06 · Reportes de estado](06-reportes.md) | Node, SQL | Reporte por país y estado en CSV y Grafana | Opcional |
 | 7 | [07 · Firma digital XML](07-firma-xml.md) | Node + Python | El hub rechaza XML alterados | Opcional |
@@ -18,9 +19,9 @@ Fuera del código, para Felix (opcional): grabar un **video de 2 minutos** con l
 
 ## Prioridad
 
-Esta semana el foco es el **expediente** (CV, certificados, inglés), que se envía el **24/10**. La demo no lo retrasa: el CV lleva el enlace a `portfolio.fedrian.dev`, que después del envío se reacondiciona para llevar a todos los proyectos.
+El expediente ya se envió. La convocatoria se extendió: entrevista técnica el **5 y 6/11** y prueba técnica el **9 y 10/11**.
 
-La demo empieza el **25/10**: tareas 2 a 5 y luego la 8. El formato de la prueba técnica no está definido, así que la preparación de la entrevista va antes que las opcionales (6, 7, 9 y el video), que entran solo si sobra tiempo.
+Orden: 2, 3, 10 (la 3b de la tabla), 4, 5 y luego la 8. Las tareas 3, 4 y 10 cubren lo que el TDR pone como indispensable y la demo no tenía: procedimientos almacenados en SQL Server, un framework de frontend (Vue) y la documentación y prueba de la API (OpenAPI, Postman). Las opcionales (6, 7, 9 y el video) entran solo si sobra tiempo.
 
 ## Por qué tres lenguajes
 
@@ -29,6 +30,8 @@ Cada lenguaje está donde tiene sentido, no por sumar a la lista:
 - **Node/TypeScript**: el hub (recibir, validar, firmar, enrutar, reportar).
 - **C#/.NET**: el sistema nacional heredado y su puente. Es lo típico de una aduana con SOAP y SQL Server.
 - **Python**: las herramientas de la entidad y de la Secretaría (firmar, certificar, vencimientos).
+
+Y un frontend en **Vue 3**, solo para la página pública de prueba.
 
 ## Prompt para Codex
 

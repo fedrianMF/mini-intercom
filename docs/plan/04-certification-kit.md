@@ -34,7 +34,7 @@ intercom-cert run --gateway URL --client-id ID --client-secret SECRET --destinat
 
 ## Página de prueba (`intercom-cert serve`, FastAPI)
 
-- `GET /`: una sola página HTML estática (en `intercom_cert/static/index.html`, sin frameworks ni CDN) en español. Tiene:
+- `GET /`: la página de prueba en español, hecha con **Vue 3** (el TDR pide un framework de frontend). FastAPI sirve el resultado compilado desde `intercom_cert/static/` con `StaticFiles(html=True)`. Tiene:
   - una explicación breve de la plataforma;
   - un selector de país destino (PE, CO, EC), con una nota de que EC pasa por el puente SOAP y CO falla a propósito la mitad de las veces;
   - el botón "Ejecutar certificación";
@@ -55,8 +55,8 @@ intercom-cert run --gateway URL --client-id ID --client-secret SECRET --destinat
     - respaldo y restauración;
     - supervisión de proveedores (`docs/supervision/`);
     - documentación y runbook.
-  - El contenido de la tabla va en `intercom_cert/static/evidence.json`, para editarlo sin tocar el HTML.
-- La traza de cada documento se dibuja como **línea de tiempo** horizontal (RECEIVED → ROUTED → ACCEPTED/REJECTED/FAILED), con hora y actor en cada paso, solo con HTML y CSS.
+  - El contenido de la tabla va en `web/public/evidence.json`, para editarlo sin tocar los componentes.
+- La traza de cada documento se dibuja como **línea de tiempo** horizontal (RECEIVED → ROUTED → ACCEPTED/REJECTED/FAILED), con hora y actor en cada paso, como componente Vue y CSS propio (sin librerías de gráficos).
 - `POST /api/runs {destination}`: corre los 5 casos con la entidad de demostración configurada en el servidor (`DEMO_CLIENT_ID` y `DEMO_CLIENT_SECRET`, que nunca se envían al navegador) y devuelve los resultados en JSON.
   - Límite: una corrida a la vez (`asyncio.Lock`) y una cada 30 s por IP. Usa el primer valor de `X-Forwarded-For` y, si no viene, `request.client.host`.
   - Si se pasa el límite, devuelve 429 con `Retry-After`.
@@ -64,9 +64,23 @@ intercom-cert run --gateway URL --client-id ID --client-secret SECRET --destinat
 - `GET /health`.
 - Variables: `GATEWAY_URL`, `DEMO_CLIENT_ID`, `DEMO_CLIENT_SECRET`, `CUSTOMS_URL`, `GRAFANA_URL`, `REPO_URL`.
 
+## Frontend (`tools/certification-kit/web`, Vue 3 + Vite)
+
+- Proyecto Vite con `vue`, `vite`, `@vitejs/plugin-vue` y, para pruebas, `vitest`, `@vue/test-utils` y `jsdom`. Fija versiones exactas (las estables actuales de Vue 3.5 y Vite) y anótalas en el resumen. JavaScript con `<script setup>`, sin TypeScript, sin router ni Pinia: es una sola página.
+- `vite.config.js`: `build.outDir = '../intercom_cert/static'` y `emptyOutDir: true`; en desarrollo, `server.proxy` de `/api` a `http://localhost:8000`.
+- Componentes en `web/src/components/`:
+  - `EvidenceTable.vue`: carga `evidence.json` y muestra "Función del puesto → dónde verlo";
+  - `RunPanel.vue`: selector de país, botón "Ejecutar certificación", estado de carga y mensaje claro si la API responde 429 (con los segundos de `Retry-After`);
+  - `CaseResult.vue`: resultado de un caso (✔/✘ y detalle);
+  - `TraceTimeline.vue`: la línea de tiempo de la traza;
+  - `RegistrationsTable.vue`: lo que guardó el sistema SOAP (`GET /api/registrations`).
+- `web/src/api.js`: las llamadas `fetch` a `/api/runs` y `/api/registrations`, en un solo lugar.
+- Pruebas Vitest: `TraceTimeline` dibuja un paso por evento en orden y marca el estado final; `RunPanel` muestra el aviso cuando la API responde 429.
+- `intercom_cert/static/` no se versiona (va en `.gitignore`); se genera con `npm run build`.
+
 ## Imagen y Compose
 
-- `tools/certification-kit/Dockerfile`: `python:3.12-slim`, `pip install --no-cache-dir .`, usuario no root y `CMD ["intercom-cert", "serve", "--host", "0.0.0.0", "--port", "8000"]`.
+- `tools/certification-kit/Dockerfile`, multi-etapa: primero `node:22-alpine` con `npm ci && npm run build` en `web/`; después `python:3.12-slim`, copia `intercom_cert/static/` de la primera etapa, `pip install --no-cache-dir .`, usuario no root y `CMD ["intercom-cert", "serve", "--host", "0.0.0.0", "--port", "8000"]`.
 - Servicio `certification-kit` en `compose.yaml`:
   - `GATEWAY_URL=http://apisix:9080`;
   - `DEMO_CLIENT_ID=senavex-bo`;
@@ -83,8 +97,9 @@ intercom-cert run --gateway URL --client-id ID --client-secret SECRET --destinat
   - `pip install -e "tools/certification-kit[dev]"`;
   - `ruff check tools/certification-kit`;
   - `pytest tools/certification-kit`.
+- Job `web`, "Test (certification-kit web)": `actions/setup-node` con Node 22, y en `tools/certification-kit/web`: `npm ci`, `npm audit --audit-level=high`, `npm test` y `npm run build`. `images.needs` también incluye `web`.
 - `images.needs` incluye `python`, y la matriz suma `{ name: certification-kit, context: tools/certification-kit, dockerfile: tools/certification-kit/Dockerfile }`. Si la muestra se copia desde `schemas/`, usa el contexto `.` y ajusta el Dockerfile.
-- Dependabot: ecosistema `pip` en `/tools/certification-kit`, con el mismo esquema.
+- Dependabot: ecosistema `pip` en `/tools/certification-kit` y `npm` en `/tools/certification-kit/web`, con el mismo esquema.
 
 ## Pruebas (pytest + respx, sin red)
 
@@ -95,6 +110,7 @@ intercom-cert run --gateway URL --client-id ID --client-secret SECRET --destinat
 ## Verificación
 
 ```sh
+(cd tools/certification-kit/web && npm ci && npm test && npm run build)
 pip install -e "tools/certification-kit[dev]" && ruff check tools/certification-kit && pytest tools/certification-kit
 docker compose up -d --build
 intercom-cert run --gateway http://localhost:9080 --client-id senavex-bo --client-secret dev-only-senavex-bo-secret --destination PE --markdown /tmp/informe.md
