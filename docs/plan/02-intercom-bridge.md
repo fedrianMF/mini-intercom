@@ -67,3 +67,18 @@ docker run --rm -v "$PWD":/src -v nuget:/root/.nuget -w /src/services/soap-bridg
 ## Corrección pendiente de la tarea 01 (del informe de revisión)
 
 En `CertificateRegistrar`, si `SaveChangesAsync` falla por la clave única de `CertificateNumber` (dos mensajes iguales a la vez), captura `DbUpdateException`, descarta los cambios del contexto (`db.ChangeTracker.Clear()`), vuelve a leer el registro y devuelve su respuesta. Agrega una prueba que inserte el registro antes del segundo `SaveChanges` y verifique que devuelve el existente sin lanzar.
+
+## Renombrar la entidad de demostración de Bolivia
+
+La entidad emisora de la demo se llama hoy `senavex-bo` / "SENAVEX", como una institución real. Pásala a un nombre genérico, para que nadie lo lea como la configuración de una entidad existente:
+
+| Antes | Después |
+|---|---|
+| `clientId` y cuenta de servicio `senavex-bo` | `entidad-bo` |
+| nombre del cliente `SENAVEX (BO)` | `Entidad emisora (BO)` |
+| claim `entity` = `SENAVEX` | `ENTIDAD-BO` |
+| secreto `dev-only-senavex-bo-secret` | `dev-only-entidad-bo-secret` |
+
+Archivos: `deploy/keycloak/realm-intercom.json`, `compose.yaml`, `deploy/k8s-dev/infra.yaml`, `deploy/helm/mini-intercom/values.yaml`, `scripts/demo.sh`, `services/hub/test/helpers.ts`, `services/hub/test/documents.test.ts`, `README.md` y `docs/arquitectura.md`. Los otros clientes (`vuce-pe`, `vuce-co`, `ecuapass-ec`) quedan como están.
+
+Al terminar, `grep -rni senavex --exclude-dir=.git .` no devuelve nada, y las pruebas del hub (`cd services/hub && npm test`) pasan.
